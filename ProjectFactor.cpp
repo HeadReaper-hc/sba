@@ -132,7 +132,7 @@ bool ProjectFactor::Evaluate(double const *const *parameters, double *residuals,
         */
 
         if(jacobians[0]){
-            Map<Matrix<double,2,10> > jacobian0(jacobians[0]);
+            Map<Matrix<double,2,10,RowMajor> > jacobian0(jacobians[0]);
             jacobian0.block<2,4>(0,0) = jac_r2p * jac_p2P * jac_P2q;
 
             jacobian0.block<2,3>(0,4) = jac_r2p * jac_p2P * Matrix3d::Identity();
@@ -148,7 +148,7 @@ bool ProjectFactor::Evaluate(double const *const *parameters, double *residuals,
 
         if(jacobians[1]){
 
-            Map<Matrix<double,2,3> > jacobian1(jacobians[1]);
+            Map<Matrix<double,2,3,RowMajor> > jacobian1(jacobians[1]);
             jacobian1 = jac_r2p * jac_p2P * rot.toRotationMatrix();
           //  cout<<"jacobians1"<<endl;
            // cout <<"jacobian1 : " <<jacobian1 <<endl;

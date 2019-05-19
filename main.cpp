@@ -6,12 +6,14 @@
 #include <Eigen/Dense>
 #include "CameraParameterization.h"
 #include <ceres/rotation.h>
+#include <chrono>
 using namespace Eigen;
 using namespace cv;
 using namespace ceres;
 void camVector2double( optimData& data, double** newData );
 void pointsVector2double( optimData& data, double** newData);
-//#define AUTODIFF
+#define USE_AUTODIFF
+#define USE_QUATERNION   //Must define
 
 struct CameraCostFunctor{
 
@@ -129,6 +131,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+
     /*   test the read data
     cout << (sbaData.cam_ptn_pt[48])[7775] <<endl;
     for(int i=0;i<9;++i)
@@ -136,18 +139,21 @@ int main(int argc, char** argv) {
     for(int i=0;i<3;++i)
         cout << (sbaData.pts[7775])[i] <<endl;
     */
-#ifdef AUTODIFF
+
+    auto time_begin = chrono::steady_clock::now();
+
+#ifdef USE_QUATERNION
 
     double** camData = new double* [sbaData.numCam];
     for(int i=0;i<sbaData.numCam;++i){
-        camData[i] =new double [9];
+        camData[i] =new double [10];
     }
 
 #else
 
     double** camData = new double* [sbaData.numCam];
     for(int i=0;i<sbaData.numCam;++i){
-        camData[i] =new double [10];
+        camData[i] =new double [9];
     }
 
 #endif
@@ -161,7 +167,9 @@ int main(int argc, char** argv) {
    pointsVector2double(sbaData, pointData);
 
    Problem problem;
-#ifdef AUTODIFF
+
+
+#ifndef USE_QUATERNION
    for(int i=0;i<sbaData.numCam;++i){
     ceres::LocalParameterization *local_parameterization = new CameraParameterization();
        problem.AddParameterBlock(camData[i],9);
@@ -192,7 +200,7 @@ int main(int argc, char** argv) {
        map<int,Point2f>::iterator iter;
        for(iter = (sbaData.cam_ptn_pt)[i].begin();iter != (sbaData.cam_ptn_pt)[i].end(); iter++){
            CostFunction* cost_function =
-                   new AutoDiffCostFunction<CameraCostFunctor, 2, 9, 3>(
+                   new AutoDiffCostFunction<CameraCostFunctor, 2, 10, 3>(
                            new CameraCostFunctor( (*iter).second ) );
            problem.AddResidualBlock(cost_function, NULL, camData[i], pointData[(*iter).first]);
        }
@@ -228,12 +236,16 @@ int main(int argc, char** argv) {
     ceres::Solve(options, &problem, &summary);
     std::cout <<summary.FullReport()<<"\n";
 
+    auto dtime = chrono::steady_clock::now() - time_begin;
+    auto dsec = chrono::duration_cast<chrono::seconds>(dtime);
+    cout << "Optimizer use time : " << dsec.count() <<" seconds"<<endl;
+
 
 
     return 0;
 }
 
-#ifdef AUTODIFF
+#ifndef USE_QUATERNION
 void camVector2double( optimData& data, double** newData )
 {
     for(int i=0;i<data.numCam;++i){

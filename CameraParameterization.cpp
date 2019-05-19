@@ -42,9 +42,9 @@ bool CameraParameterization::ComputeJacobian(const double *x, double *jacobian) 
     Map<MatrixXd> Jac(jacobian,9,10);
     Jac.setZero();
     jacobian[0] = -x[1]; jacobian[1]  = -x[2]; jacobian[2]  = -x[3];  // NOLINT
-    jacobian[3] =  x[0]; jacobian[4]  =  x[3]; jacobian[5]  = -x[2];  // NOLINT
-    jacobian[6] = -x[3]; jacobian[7]  =  x[0]; jacobian[8]  =  x[1];  // NOLINT
-    jacobian[9] =  x[2]; jacobian[10] = -x[1]; jacobian[11] =  x[0];  // NOLINT
+    jacobian[9] =  x[0]; jacobian[10]  =  x[3]; jacobian[11]  = -x[2];  // NOLINT
+    jacobian[18] = -x[3]; jacobian[19]  =  x[0]; jacobian[20]  =  x[1];  // NOLINT
+    jacobian[27] =  x[2]; jacobian[28] = -x[1]; jacobian[29] =  x[0];  // NOLINT
 
     Jac.block<6,6>(3,4).setIdentity();
 

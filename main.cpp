@@ -169,9 +169,10 @@ int main(int argc, char** argv) {
 #else
 
    for(int i=0;i<sbaData.numCam;++i){
-       ceres::LocalParameterization *local_parameterization = new ProductParameterization(
+      /* ceres::LocalParameterization *local_parameterization = new ProductParameterization(
                new QuaternionParameterization(),
-               new IdentityParameterization(6));
+               new IdentityParameterization(6)); */
+      ceres::LocalParameterization* local_parameterization = new CameraParameterization();
        problem.AddParameterBlock(camData[i],10,local_parameterization);
    }
 #endif
@@ -198,7 +199,7 @@ int main(int argc, char** argv) {
    }
 
 #else
-  /*
+
     for(int i=0;i<sbaData.numCam;++i){
         map<int,Point2f>::iterator iter;
         for(iter = (sbaData.cam_ptn_pt)[i].begin();iter != (sbaData.cam_ptn_pt)[i].end(); iter++){
@@ -208,7 +209,7 @@ int main(int argc, char** argv) {
             problem.AddResidualBlock(cost_function, NULL, camData[i], pointData[(*iter).first]);
         }
     }
-    */
+    /*
 
     for(int i=0;i<sbaData.numCam;++i){
         map<int,Point2f>::iterator iter;
@@ -217,7 +218,7 @@ int main(int argc, char** argv) {
             problem.AddResidualBlock(cost_function,NULL,camData[i],pointData[(*iter).first]);
         }
    }
-
+   */
 
 #endif
 
